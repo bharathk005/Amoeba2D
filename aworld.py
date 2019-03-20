@@ -9,21 +9,22 @@ import pymunk.pygame_util
 class CreateWorld(object):
     def __init__(self):
         self.space = pymunk.Space()
-        self.space.gravity = (0.0,-90.8)
+        self.space.gravity = (0.0,-986)
         self.physicsStepsPerFrame = 1
         self.dt = 1.0/60.0
         self.force_dir = 1
         self.force_mag = 1
         self.objects = []
+        
+        self.staticScene()
+        self.createBox()
+        self.running = True
 
-
+    def init_pygame(self):
         pygame.init()
         self.screen = pygame.display.set_mode((600, 600))
         self.clock = pygame.time.Clock()
         self.drawOption = pymunk.pygame_util.DrawOptions(self.screen)
-        self.staticScene()
-        self.createBox()
-        self.running = True
 
     def run(self):
         while self.running:
@@ -71,4 +72,5 @@ class CreateWorld(object):
 
 if __name__ == '__main__':
     game = CreateWorld()
+    game.init_pygame()
     game.run()
