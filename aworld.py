@@ -12,8 +12,11 @@ class CreateWorld(object):
         self.space.gravity = (0.0,-90.8)
         self.physicsStepsPerFrame = 1
         self.dt = 1.0/60.0
-
+        self.force_dir = 1
+        self.force_mag = 1
         self.objects = []
+
+
         pygame.init()
         self.screen = pygame.display.set_mode((600, 600))
         self.clock = pygame.time.Clock()
@@ -29,10 +32,13 @@ class CreateWorld(object):
             self.applyForce()
             self.clear_screen()
             self.draw_objects()
+            font = pygame.font.SysFont("Arial", 16)
+            self.screen.blit(font.render("fps: " + str(self.clock.get_fps()), 1, THECOLORS["black"]), (0,0))
+            self.screen.blit(font.render("force_dir: " + str(self.force_dir), 1, THECOLORS["black"]), (0,15))
             pygame.display.flip()
             # Delay fixed time between frames
             self.clock.tick(50)
-            pygame.display.set_caption("fps: " + str(self.clock.get_fps()))
+            
 
     def staticScene(self):
         staticBody = self.space.static_body
@@ -41,11 +47,11 @@ class CreateWorld(object):
 
     def createBox(self):
         mass = 5
-        radius = 10
-        inertia = pymunk.moment_for_circle(mass,0,radius,(0,0))
+        vertices = (20.0,20.0)
+        inertia = pymunk.moment_for_box(mass,(10.0,10.0))
         body = pymunk.Body(mass,inertia)
-        body.position = 300,100
-        shape = pymunk.Circle(body,radius,(0,0))
+        body.position = 300.0,150.0
+        shape = pymunk.Poly.create_box(body,vertices)
         shape.elasticity = 0.95
         shape.friction = 0.5
         self.space.add(body,shape)
@@ -53,7 +59,7 @@ class CreateWorld(object):
 
     def applyForce(self):
         obj = self.objects[0]
-        obj.body.apply_impulse_at_local_point((1,0))
+        obj.body.apply_impulse_at_local_point((self.force_mag*self.force_dir,0))
 
     def clear_screen(self):
         
