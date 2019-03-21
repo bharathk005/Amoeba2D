@@ -8,6 +8,9 @@ import pymunk.pygame_util
 
 class CreateWorld(object):
     def __init__(self):
+        self.displayX = 600
+        self.displayY = 600
+
 
         self.space = pymunk.Space()
         self.space.gravity = (0.0,-986)
@@ -20,9 +23,9 @@ class CreateWorld(object):
         self.running = True
 
         self.n_dir =1
-        self.left_wall = (200.0,100.0)
-        self.right_wall = (400.0,100.0)
-        self.start_pos = (201.0,101.0)
+        self.left_wall = (100.0,100.0)
+        self.right_wall = (500.0,100.0)
+        self.start_pos = self.left_wall
         self.x_prev = self.start_pos[0]
 
         self.staticScene()
@@ -30,7 +33,7 @@ class CreateWorld(object):
 
     def init_pygame(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((600, 600))
+        self.screen = pygame.display.set_mode((self.displayX, self.displayY))
         self.clock = pygame.time.Clock()
         self.drawOption = pymunk.pygame_util.DrawOptions(self.screen)
 
@@ -57,7 +60,7 @@ class CreateWorld(object):
 
     def staticScene(self):
         staticBody = self.space.static_body
-        ground = pymunk.Segment(staticBody,(50.0, 100.0), (550.0, 100.0), 2.0)
+        ground = pymunk.Segment(staticBody,self.left_wall, self.right_wall, 1.5)
         ground.friction = 0.6
         self.space.add(ground)
 
@@ -92,9 +95,9 @@ class CreateWorld(object):
 
     def milestones(self):
         x,y = self.objects[0].body.position
-        if x >= self.right_wall[0]:
+        if x >= self.right_wall[0] - 10:
             self.n_dir = -1
-        elif x<= self.left_wall[0]:
+        elif x<= self.left_wall[0] +10:
             self.n_dir = 1
 
     def getReward(self):
@@ -111,7 +114,6 @@ class CreateWorld(object):
             else:
                 reward = 0
         self.x_prev = x
-        print(reward)
         return reward 
 
 
