@@ -6,6 +6,8 @@ from pygame.color import *
 import pymunk
 import pymunk.pygame_util
 
+import numpy as np1
+
 class CreateWorld(object):
     def __init__(self):
         self.displayX = 600
@@ -21,21 +23,22 @@ class CreateWorld(object):
         self.force_mag = 5
         self.objects = []
         self.running = True
-
+        self.box_dir = 0
         self.n_dir =1
         self.left_wall = (100.0,100.0)
         self.right_wall = (500.0,100.0)
         self.start_pos = self.left_wall
         self.x_prev = self.start_pos[0]
-
         self.staticScene()
         self.createBox()
+        self.init_pygame()
 
     def init_pygame(self):
         pygame.init()
         self.screen = pygame.display.set_mode((self.displayX, self.displayY))
         self.clock = pygame.time.Clock()
         self.drawOption = pymunk.pygame_util.DrawOptions(self.screen)
+        
 
     def run_frame(self):       
         for x in range(self.physicsStepsPerFrame):
@@ -43,7 +46,19 @@ class CreateWorld(object):
         velx,vely = self.objects[0].body.velocity_at_local_point((0,0))
         self.milestones()
         self.applyForce()
+        x,y = self.objects[0].body.position
+
+        x = round(x,4)
+        
+        if x - self.x_prev > 0:
+            self.box_dir =1
+        elif x - self.x_prev == 0:
+            self.box_dir = 0
+        else:
+         self.box_dir = -1 
         reward = self.getReward()
+
+
         self.clear_screen()
         self.draw_objects()
         font = pygame.font.SysFont("Arial", 16)
@@ -51,11 +66,15 @@ class CreateWorld(object):
         self.screen.blit(font.render("force_dir: " + str(self.force_dir), 1, THECOLORS["black"]), (0,15))
         self.screen.blit(font.render("n_dir: " + str(self.n_dir), 1, THECOLORS["black"]), (0,30))
         self.screen.blit(font.render("Velocity: " + str(velx), 1, THECOLORS["black"]), (0,45))
+
+        window_dat = pygame.surfarray.array2d(self.screen)
+        window_dat = window_dat[:,300:self.displayY]
         pygame.display.flip()
+
         self.terminate_action()
         # Delay fixed time between frames
         self.clock.tick(60)
-        return reward
+        return reward,window_dat,self.box_dir
             
 
     def staticScene(self):
@@ -103,6 +122,8 @@ class CreateWorld(object):
     def getReward(self):
         reward = 0
         x,y = self.objects[0].body.position
+        x = round(x,4)
+        y = round(y,4)
         if self.n_dir == 1:
             if self.x_prev < x:
                 reward = 1 
@@ -119,7 +140,6 @@ class CreateWorld(object):
 
 if __name__ == '__main__':
     game = CreateWorld()
-    game.init_pygame()
     while game.running:
         game.run_frame()
 
