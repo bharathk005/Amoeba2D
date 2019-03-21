@@ -63,7 +63,7 @@ class CreateWorld(object):
 
     def createBox(self):
         mass = 1
-        vertices = (20.0,20.0)
+        vertices = (10.0,10.0)
         inertia = pymunk.moment_for_box(mass,(10.0,10.0))
         body = pymunk.Body(mass,inertia)
         body.position = self.start_pos
