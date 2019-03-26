@@ -1,11 +1,12 @@
 import aworld as w
 import eyes as e
-import pygame
+importmport pygame
 
 from matplotlib import pyplot as plt
 
 world = w.CreateWorld()
 
+#new comm
 def basic_control():
 	while world.running:
 

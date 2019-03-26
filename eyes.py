@@ -13,5 +13,7 @@ def see_amoeba_world(offsetX,offsetY,sizeX,sizeY):
 
 
 if __name__ == '__main__':
-    see_amoeba_world()
+	while True:
+
+		see_amoeba_world(0,40,600,600)
 

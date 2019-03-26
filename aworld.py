@@ -7,12 +7,12 @@ import pymunk
 import pymunk.pygame_util
 
 import numpy as np1
-
+#new comm
 class CreateWorld(object):
     def __init__(self):
         self.displayX = 600
         self.displayY = 600
-
+  
 
         self.space = pymunk.Space()
         self.space.gravity = (0.0,-986)
@@ -57,8 +57,7 @@ class CreateWorld(object):
         else:
          self.box_dir = -1 
         reward = self.getReward()
-
-
+        
         self.clear_screen()
         self.draw_objects()
         font = pygame.font.SysFont("Arial", 16)
