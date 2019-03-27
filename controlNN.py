@@ -9,10 +9,11 @@ from matplotlib import pyplot as plt
 
 
 def basic_control():
+	world = w.CreateWorld()
 	while world.running:
 		
-		#e.see_amoeba_world(0,50,world.displayX,world.displayY)
-		reward,window_dat,box_dir = world.run_frame()
+		e.see_amoeba_world(0,50,world.displayX,world.displayY)
+		reward,state = world.run_frame()
 		x,y = world.objects[0].body.position
 		world.force_dir = world.n_dir 
 		
@@ -20,9 +21,8 @@ def basic_control():
 		# temp = pygame.display.set_mode((world.displayX, world.displayY))
 		# temp.blit(pygame.surfarray.make_surface(window_dat),(0,0) )
 		# pygame.display.update()
-		# if x > 450 and world.n_dir == 1:
-		# 	plt.imshow(window_dat)
-		# 	plt.show()
+		# plt.imshow(window_dat)
+		# plt.show()
 
 
 
@@ -63,15 +63,15 @@ class CreateNN():
 					                                     activation_fn = None,
 					                                     weights_initializer = tf.contrib.layers.xavier_initialer())
 
-	 		with tf.name_scope(name + "softmax"):
-	 			action_prob = tf.nn.softmax(fc4)
+			with tf.name_scope(name + "softmax"):
+				action_prob = tf.nn.softmax(fc4)
 
-	 		with tf.name_scope(name + "loss"):
-	 			prob_log = tf.nn.softmax_cross_entropy_with_logits(logits = fc4,labels = self.actions)
-	 			loss = tf.reduce_mean(prob_log * self.disc_ep_reward)
+			with tf.name_scope(name + "loss"):
+				prob_log = tf.nn.softmax_cross_entropy_with_logits(logits = fc4,labels = self.actions)
+				loss = tf.reduce_mean(prob_log * self.disc_ep_reward)
 
-	 		with tf.name_scope(name + "train"):
-	  			train_op = tf.train.AdamOptimizer(self.LR).minimize(loss)
+			with tf.name_scope(name + "train"):
+				train_op = tf.train.AdamOptimizer(self.LR).minimize(loss)
 
 
 
@@ -88,7 +88,7 @@ def trainNN():
 
 		for episode in range(TOTAL_EPISODES):
 			reward_for_episode = 0
-			
+
 
 
 

@@ -33,6 +33,17 @@ class CreateWorld(object):
         self.createBox()
         self.init_pygame()
 
+    def process_frame(self,screen):
+        window_dat = pygame.surfarray.array2d(screen)
+        offset = 20
+        window_dat = window_dat[int(self.left_wall[0]-offset):int(self.right_wall[0]+offset),int(self.displayY-self.left_wall[1]-offset):int(self.displayY-self.right_wall[1]+offset)]
+        window_dat = window_dat.reshape((1,window_dat.shape[0]*window_dat.shape[1]))
+        window_dat -= window_dat.min()
+        window_dat = window_dat/window_dat.max()
+        state = np1.append(window_dat,self.box_dir)
+        print(state.shape)
+        return state
+
     def init_pygame(self):
         pygame.init()
         self.screen = pygame.display.set_mode((self.displayX, self.displayY))
@@ -66,14 +77,13 @@ class CreateWorld(object):
         self.screen.blit(font.render("n_dir: " + str(self.n_dir), 1, THECOLORS["black"]), (0,30))
         self.screen.blit(font.render("Velocity: " + str(velx), 1, THECOLORS["black"]), (0,45))
 
-        window_dat = pygame.surfarray.array2d(self.screen)
-        window_dat = window_dat[:,300:self.displayY]
+        state = self.process_frame(self.screen)
         pygame.display.flip()
 
         self.terminate_action()
         # Delay fixed time between frames
-        self.clock.tick(60)
-        return reward,window_dat,self.box_dir
+        #self.clock.tick(60)
+        return reward,state
             
 
     def staticScene(self):
@@ -129,17 +139,17 @@ class CreateWorld(object):
             elif self.x_prev == x:
                 reward = 0
             else:
-            	reward = -1
+                reward = -1
         elif self.n_dir == -1:
             if self.x_prev > x:
                 reward = 1 
             elif self.x_prev == x:
-            	reward = 0
+                reward = 0
             else:
                 reward = -1
         self.x_prev = x
         return reward
-        
+
 
 if __name__ == '__main__':
     game = CreateWorld()
