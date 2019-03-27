@@ -7,7 +7,7 @@ import pymunk
 import pymunk.pygame_util
 
 import numpy as np1
-#new comm
+
 class CreateWorld(object):
     def __init__(self):
         self.displayX = 600
@@ -126,16 +126,20 @@ class CreateWorld(object):
         if self.n_dir == 1:
             if self.x_prev < x:
                 reward = 1 
-            else:
+            elif self.x_prev == x:
                 reward = 0
+            else:
+            	reward = -1
         elif self.n_dir == -1:
             if self.x_prev > x:
                 reward = 1 
+            elif self.x_prev == x:
+            	reward = 0
             else:
-                reward = 0
+                reward = -1
         self.x_prev = x
-        return reward 
-
+        return reward
+        
 
 if __name__ == '__main__':
     game = CreateWorld()
