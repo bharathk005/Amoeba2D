@@ -52,34 +52,34 @@ class CreateNN():
 		self.name = name
 
 		with tf.variable_scope(name):
-			self.inputs = tf.placeholder(tf.float32,[None,ip_size],name = "input")
+			self.inputs = tf.placeholder(tf.float32,[*ip_size],name = "input")
 			self.actions = tf.placeholder(tf.float32,[None,action_size],name = "action")
 			self.disc_ep_reward = tf.placeholder(tf.float32,[None,],name = "disconted_rewards")
 
 			self.mean_reward = tf.placeholder(tf.float32,name = "mean_reward")
 
 			with tf.name_scope(name + "FC1"):
-				self.fc1 = tf.contrib.layers.fully_connected(input = self.inputs,
-					                                     num_outputs = self.ip_size * 2,
+				self.fc1 = tf.contrib.layers.fully_connected(inputs = self.inputs,
+					                                     num_outputs = 17601*2,#self.ip_size * 2,
 					                                     activation_fn = tf.nn.relu,
-					                                     weights_initializer = tf.contrib.layers.xavier_initialer())
+					                                     weights_initializer = tf.contrib.layers.xavier_initializer())
 			with tf.name_scope(name + "FC2"):
-				self.fc2 = tf.contrib.layers.fully_connected(input = self.fc1,
-					                                     num_outputs = self.ip_size * 2,
+				self.fc2 = tf.contrib.layers.fully_connected(inputs = self.fc1,
+					                                     num_outputs = 17601*2,#self.ip_size * 2,
 					                                     activation_fn = tf.nn.relu,
-					                                     weights_initializer = tf.contrib.layers.xavier_initialer())
+					                                     weights_initializer = tf.contrib.layers.xavier_initializer())
 
 			with tf.name_scope(name + "FC3"):
-				self.fc3 = tf.contrib.layers.fully_connected(input = self.fc2,
+				self.fc3 = tf.contrib.layers.fully_connected(inputs = self.fc2,
 					                                     num_outputs = self.action_size,
 					                                     activation_fn = tf.nn.relu,
-					                                     weights_initializer = tf.contrib.layers.xavier_initialer())
+					                                     weights_initializer = tf.contrib.layers.xavier_initializer())
 
 			with tf.name_scope(name + "FC4"):
-				self.fc4 = tf.contrib.layers.fully_connected(input = self.fc3,
+				self.fc4 = tf.contrib.layers.fully_connected(inputs = self.fc3,
 					                                     num_outputs = self.action_size,
 					                                     activation_fn = None,
-					                                     weights_initializer = tf.contrib.layers.xavier_initialer())
+					                                     weights_initializer = tf.contrib.layers.xavier_initializer())
 
 			with tf.name_scope(name + "softmax"):
 				self.action_prob = tf.nn.softmax(self.fc4)
@@ -145,4 +145,5 @@ def trainNN():
 
 if __name__ == '__main__':
 	basic_control()
+	#trainNN()
 	print('THE END')
