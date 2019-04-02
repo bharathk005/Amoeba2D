@@ -5,6 +5,7 @@ from pygame.locals import *
 from pygame.color import *
 import pymunk
 import pymunk.pygame_util
+from collections import deque
 
 import numpy as np1
 
@@ -31,14 +32,14 @@ class CreateWorld(object):
 
 
         self.stacked_frames  = []
-        self.stack_size = 4
+        self.stack_size = 1
 
         self.staticScene()
         self.createBox()
         self.init_pygame()
 
     def init_stack(self,state):
-        self.stacked_frames =  deque([np.zeros(state.shape, dtype=np.int) for i in range(self.stack_size)], maxlen=self.stack_size)
+        self.stacked_frames =  deque([np1.zeros(state.shape, dtype=np1.int) for i in range(self.stack_size)], maxlen=self.stack_size)
 
     def stack_states(self,state,reset=0):
         if reset == 1:
@@ -47,7 +48,7 @@ class CreateWorld(object):
         elif reset == 0:
             self.stacked_frames.append(state)
         
-        stack = np.stack(self.stacked_frames,axis = 2)
+        stack = np1.stack(self.stacked_frames, axis =2)
         return stack
 
 
@@ -111,7 +112,7 @@ class CreateWorld(object):
         self.terminate_action()
         # Delay fixed time between frames
         #self.clock.tick(60)
-        return reward,frames,self.running
+        return reward,frames,not self.running
             
 
     def staticScene(self):
@@ -147,7 +148,7 @@ class CreateWorld(object):
         x,y = self.objects[0].body.position
         if(y < 100.0 ):
             self.running = False
-        if self.n_dir == -1 and x <= self.left_wall[0] + 200:
+        if self.n_dir == -1 and x <= self.left_wall[0] + 100:
             self.running = False
 
     def milestones(self):
