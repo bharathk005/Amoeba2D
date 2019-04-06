@@ -4,9 +4,10 @@ import tensorflow as tf
 import numpy as np
 
 from matplotlib import pyplot as plt
-
 import time
-TOTAL_EPISODES = 50
+import datetime
+TOTAL_EPISODES = 10
+MAX_STEPS = 1000
 LR = 0.01
 GAMMA = 0.95
 
@@ -66,7 +67,7 @@ class CreateNN():
 
 			self.mean_reward = tf.placeholder(tf.float32,name = "mean_reward")
 
-			with tf.name_scope(name + " con1"):
+			with tf.name_scope(name + "-con1"):
 				self.con1 = tf.layers.conv2d(inputs = self.inputs,
 	                                         filters = 32,
 	                                         kernel_size = [20,10],
@@ -81,22 +82,22 @@ class CreateNN():
 				self.con1_out = tf.nn.elu(self.con1_batchnorm, name="con1_out")
 
 
-			with tf.name_scope(name + " con2"):
-				self.con2 = tf.layers.conv2d(inputs = self.con1_out,
-	                                         filters = 64,
-	                                         kernel_size = [8,4],
-	                                         strides = [4,2],
-	                                         padding = "VALID",
-	                                          kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
-	                                         name = "con2")
-				self.con2_batchnorm = tf.layers.batch_normalization(self.con2,
-                                                   training = True,
-                                                   epsilon = 1e-5,
-                                                     name = 'batch_norm2')
-				self.con2_out = tf.nn.elu(self.con2_batchnorm, name="con2_out")
+			# with tf.name_scope(name + "-con2"):
+			# 	self.con2 = tf.layers.conv2d(inputs = self.con1_out,
+	  #                                        filters = 64,
+	  #                                        kernel_size = [8,4],
+	  #                                        strides = [4,2],
+	  #                                        padding = "VALID",
+	  #                                         kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+	  #                                        name = "con2")
+			# 	self.con2_batchnorm = tf.layers.batch_normalization(self.con2,
+   #                                                 training = True,
+   #                                                 epsilon = 1e-5,
+   #                                                   name = 'batch_norm2')
+			# 	self.con2_out = tf.nn.elu(self.con2_batchnorm, name="con2_out")
 
-			with tf.name_scope(name + " con3"):
-				self.con3 = tf.layers.conv2d(inputs = self.con2_out,
+			with tf.name_scope(name + "-con3"):
+				self.con3 = tf.layers.conv2d(inputs = self.con1_out,
 	                                         filters = 128,
 	                                         kernel_size = [4,4],
 	                                         strides = [2,2],
@@ -109,26 +110,35 @@ class CreateNN():
                                                      name = 'batch_norm3')
 				self.con3_out = tf.nn.elu(self.con3_batchnorm, name="con3_out")
 
-			with tf.name_scope(name + " flat_n_dense"):
+			with tf.name_scope(name + "-flat_n_dense"):
 				self.flater = tf.layers.flatten(self.con3_out)
 				self.fc = tf.layers.dense(inputs = self.flater, units = 512, activation = tf.nn.elu,
                                        kernel_initializer=tf.contrib.layers.xavier_initializer(),
                                 name="fc1")
 				self.output = tf.layers.dense(inputs = self.fc, 
                                            kernel_initializer=tf.contrib.layers.xavier_initializer(),
-                                          units = 3, 
+                                          units = 2, 
                                         activation=None)
 
 
 			with tf.name_scope(name + "-softmax"):
-				self.action_prob = tf.nn.softmax(self.fc4)
+				self.action_prob = tf.nn.softmax(self.output)
 
 			with tf.name_scope(name + "-loss"):
-				self.prob_log = tf.nn.softmax_cross_entropy_with_logits(logits = self.fc4,labels = self.actions)
-				self.loss = tf.reduce_mean(self.prob_log * self.disc_ep_reward)
+				self.prob_log = tf.nn.softmax_cross_entropy_with_logits_v2(logits = self.output,labels = self.actions)
+				#self.prob_log = tf.log(self.output)
+				self.loss = -tf.reduce_mean(self.prob_log * self.disc_ep_reward)
 
 			with tf.name_scope(name + "-train"):
 				self.train_op = tf.train.AdamOptimizer(self.LR).minimize(self.loss)
+
+			self.writer = tf.summary.FileWriter("tensorboard/"+datetime.datetime.now().strftime("%d_%I%M%p "),tf.get_default_graph())
+			for var in tf.trainable_variables():
+				tf.summary.histogram(var.name, var)
+			tf.summary.scalar("Loss", self.loss)
+			tf.summary.scalar("CrossEntropy", self.prob_log)
+			tf.summary.scalar("Reward",self.mean_reward)
+			self.merged_summary = tf.summary.merge_all()
 
 
 
@@ -138,6 +148,8 @@ def trainNN():
 	state = world.reset()
 
 	network = CreateNN(state.shape,world.action_size,LR,"FirstNN")
+
+	allRewards = []
 	complete_rewards = []
 	total_rewards = 0
 	max_reward = 0
@@ -149,21 +161,28 @@ def trainNN():
 		for episode in range(TOTAL_EPISODES):
 			reward_for_episode = 0
 			state = world.reset()
-
+			step = 0
 			while True:
 				actions = sess.run(network.action_prob, feed_dict = {network.inputs:state.reshape(1,*state.shape) })
-				print('****************************************')
-				print(actions.shape)
+				#print('#########################################')
 				choice = np.argmax(actions)
-				action = world.action_space[int(choice)]
-				reward,next_state,done = world.run_frame(action)
+				#choice = np.random.randint(2)
+				#action = world.action_space[int(choice)]
+				reward,next_state,done = world.run_frame(choice)
+				print(reward)
 
+				action_ideal = np.zeros(actions.shape)
+				action_ideal[0][choice] = 1
 				episode_rewards.append(reward)
 				episode_states.append(state)
-				episode_actions.append(actions)
-				if done:
+				episode_actions.append(action_ideal)
+				step += 1
+				if done or step >= MAX_STEPS:
 					reward_for_episode = np.sum(episode_rewards)
 					complete_rewards.append(reward_for_episode)
+
+					total = np.sum(complete_rewards)
+					mean = np.divide(total,episode+1)
 
 					max_reward = np.amax(complete_rewards)
 
@@ -172,7 +191,17 @@ def trainNN():
 					print("Epi Reward: ", reward_for_episode)
 					print("Max Reward: ", max_reward)
 					dis_ep_reward = discount_and_normalize_rewards(episode_rewards)
-					loss,_ = sess.run([network.loss,network.train_op],feed_dict={network.inputs: episode_states,network.actions: np.vstack(np.array(episode_actions)),network.disc_ep_reward: dis_ep_reward})
+					loss,_ = sess.run([network.loss,network.train_op],feed_dict={network.inputs: episode_states,
+																				network.actions: np.vstack(np.array(episode_actions)),
+																				network.disc_ep_reward: dis_ep_reward})
+
+
+					summary = sess.run(network.merged_summary,feed_dict={network.inputs: episode_states,
+																		network.actions: np.vstack(np.array(episode_actions)),
+																		network.disc_ep_reward: dis_ep_reward,
+																		network.mean_reward: reward_for_episode})
+					network.writer.add_summary(summary,episode)
+					network.writer.flush()
 
 					episode_states, episode_actions,episode_rewards = [],[],[]
 					break

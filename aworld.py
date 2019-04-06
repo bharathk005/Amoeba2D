@@ -19,15 +19,15 @@ class CreateWorld(object):
         self.space.gravity = (0.0,-986)
         self.physicsStepsPerFrame = 1
         self.dt = 1.0/60.0
-        self.force_dir = 1
+        self.force_dir = 0
         self.force_mag = 5
         self.objects = []
         self.running = True
         self.box_dir = 0
         self.n_dir =1
-        self.left_wall = (100.0,100.0)
-        self.right_wall = (500.0,100.0)
-        self.start_pos = self.left_wall
+        self.left_wall = (50.0,100.0)
+        self.right_wall = (550.0,100.0)
+        self.start_pos = (self.left_wall[0]+150 ,self.left_wall[1])
         self.x_prev = self.start_pos[0]
 
 
@@ -148,14 +148,14 @@ class CreateWorld(object):
         x,y = self.objects[0].body.position
         if(y < 100.0 ):
             self.running = False
-        if self.n_dir == -1 and x <= self.left_wall[0] + 100:
+        if self.n_dir == -1 and x <= self.left_wall[0] + 50:
             self.running = False
 
     def milestones(self):
         x,y = self.objects[0].body.position
-        if x >= self.right_wall[0] - 10:
+        if x >= self.right_wall[0] - 150:
             self.n_dir = -1
-        elif x<= self.left_wall[0] +10:
+        elif x<= self.left_wall[0] +150:
             self.n_dir = 1
 
     def getReward(self):
@@ -165,18 +165,21 @@ class CreateWorld(object):
         y = round(y,4)
         if self.n_dir == 1:
             if self.x_prev < x:
-                reward = 1 
+                reward = 0.5
             elif self.x_prev == x:
                 reward = 0
             else:
-                reward = -1
+                reward = 0
         elif self.n_dir == -1:
             if self.x_prev > x:
-                reward = 1 
+                reward = 0.5
             elif self.x_prev == x:
                 reward = 0
             else:
-                reward = -1
+                reward = 0
+        if x > self.right_wall[0] or x < self.left_wall[0]:
+            reward = 0
+
         self.x_prev = x
         return reward
 
