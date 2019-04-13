@@ -28,16 +28,18 @@ class CreateWorld(object):
         self.n_dir =1
         self.left_wall = (50.0,100.0)
         self.right_wall = (550.0,100.0)
-        self.start_pos = (self.left_wall[0]+150 ,self.left_wall[1])
+        self.start_pos = ((self.left_wall[0]+self.right_wall[0])/2 ,self.left_wall[1])
         self.x_prev = self.start_pos[0]
 
+        self.trashpos = (np1.random.uniform(self.left_wall[0] + 50, self.right_wall[0] - 50),self.left_wall[1] + 10)
 
         self.stacked_frames  = []
-        self.stack_size = 1
+        self.stack_size = 4
 
         self.renderSC = True
         self.staticScene()
         self.createBox()
+        self.createTrash()
         self.init_pygame()
 
     def init_stack(self,state):
@@ -57,12 +59,13 @@ class CreateWorld(object):
 
     def process_frame(self,screen):
         window_dat = pygame.surfarray.array2d(screen)
-        offset = 20
-        window_dat = window_dat[int(self.left_wall[0]-offset):int(self.right_wall[0]+offset),int(self.displayY-self.left_wall[1]-offset):int(self.displayY-self.right_wall[1]+offset)]
-        #window_dat = window_dat.reshape((1,window_dat.shape[0]*window_dat.shape[1]))
+        offsetx = 20
+        offsety = 50
+        window_dat = window_dat[int(self.left_wall[0]-offsetx):int(self.right_wall[0]+offsetx),int(self.displayY-self.left_wall[1]-offsety):int(self.displayY-self.right_wall[1]+offsety)]
+
         window_dat -= window_dat.min()
         window_dat = window_dat/window_dat.max()
-        #state = np1.append(window_dat,self.box_dir)
+
         return window_dat
 
     def init_pygame(self):
@@ -104,8 +107,6 @@ class CreateWorld(object):
         self.clear_screen()
         self.draw_objects()
         font = pygame.font.SysFont("Arial", 16)
-        self.clock = pygame.time.Clock()
-        self.screen.blit(font.render("fps: " + str(self.clock.get_fps()), 1, THECOLORS["black"]), (0,0))
         self.screen.blit(font.render("force_dir: " + str(self.action_space[action]), 1, THECOLORS["black"]), (0,15))
         self.screen.blit(font.render("n_dir: " + str(self.n_dir), 1, THECOLORS["black"]), (0,30))
         self.screen.blit(font.render("Velocity: " + str(velx), 1, THECOLORS["black"]), (0,45))
@@ -143,7 +144,7 @@ class CreateWorld(object):
         mass = 1
         intertia = pymunk.moment_for_circle(mass, 0, 5)
         body = pymunk.Body(mass, intertia)
-        body.positin = self.trashpos
+        body.position = self.trashpos
         shape = pymunk.Circle(body, 5)
         shape.elasticity = 0.95
         shape.friction = 0.1
@@ -171,9 +172,10 @@ class CreateWorld(object):
 
     def milestones(self):
         x,y = self.objects[0].body.position
-        if x >= self.right_wall[0] - 150:
+        tx,ty = self.trash[0].body.position
+        if x >= tx:
             self.n_dir = -1
-        elif x<= self.left_wall[0] +150:
+        elif x < tx:
             self.n_dir = 1
 
     def getReward(self):
@@ -182,7 +184,7 @@ class CreateWorld(object):
         x = round(x,4)
         y = round(y,4)
         if self.n_dir == 1:
-            if self.x_prev + 5 < x:
+            if self.x_prev + 1 < x:
                 reward = 0.5
                 self.x_prev = x
             elif self.x_prev == x:
@@ -190,7 +192,7 @@ class CreateWorld(object):
             else:
                 reward = 0
         elif self.n_dir == -1:
-            if self.x_prev - 5 > x:
+            if self.x_prev - 1 > x:
                 reward = 0.5
                 self.x_prev = x
             elif self.x_prev == x:
@@ -199,10 +201,6 @@ class CreateWorld(object):
                 reward = 0
         if x > self.right_wall[0] or x < self.left_wall[0]:
             reward = -10
-
-        if x > self.right_wall[0] - 100 and x < self.right_wall[0] - 101:
-            reward = 5 
-
         
         return reward
 

@@ -17,25 +17,27 @@ def basic_control():
 	done = True
 	action = 1
 	last_time = time.time()
+	step = 0
 	while True:
-		
+		step += 1
 		#e.see_amoeba_world(0,50,world.displayX,world.displayY)
 		reward,state,done = world.run_frame(action)
 		print(state.shape)
 		x,y = world.objects[0].body.position
 		action = int((world.n_dir +1)/2)
-		if world.running == False:
-			window_dat = world.reset()
-			#print(np.__config__.show())
-			print('loop took {} seconds'.format(time.time()-last_time))	
-			last_time = time.time()
+		# if world.running == False:
+		# 	window_dat = world.reset()
+		# 	#print(np.__config__.show())
+		# 	print('loop took {} seconds'.format(time.time()-last_time))	
+		# 	last_time = time.time()
 		
 
 		# temp = pygame.display.set_mode((world.displayX, world.displayY))
 		# temp.blit(pygame.surfarray.make_surface(window_dat),(0,0) )
 		# pygame.display.update()
-		# plt.imshow(window_dat)
-		# plt.show()
+		# if step > 20:
+		plt.imshow(state[:,:,3])
+		plt.show()
 
 def discount_and_normalize_rewards(episode_rewards):
     discounted_episode_rewards = np.zeros_like(episode_rewards)
