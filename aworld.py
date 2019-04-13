@@ -22,6 +22,7 @@ class CreateWorld(object):
         self.force_dir = 0
         self.force_mag = 5
         self.objects = []
+        self.trash = []
         self.running = True
         self.box_dir = 0
         self.n_dir =1
@@ -34,6 +35,7 @@ class CreateWorld(object):
         self.stacked_frames  = []
         self.stack_size = 1
 
+        self.renderSC = True
         self.staticScene()
         self.createBox()
         self.init_pygame()
@@ -78,6 +80,9 @@ class CreateWorld(object):
 
         return frames
 
+    def render(self,rend = True):
+        self.renderSC = rend
+
     def run_frame(self, action):       
         for x in range(self.physicsStepsPerFrame):
             self.space.step(self.dt)
@@ -95,19 +100,20 @@ class CreateWorld(object):
         else:
          self.box_dir = -1 
         reward = self.getReward()
-        
+            
         self.clear_screen()
         self.draw_objects()
         font = pygame.font.SysFont("Arial", 16)
         self.clock = pygame.time.Clock()
         self.screen.blit(font.render("fps: " + str(self.clock.get_fps()), 1, THECOLORS["black"]), (0,0))
-        self.screen.blit(font.render("force_dir: " + str(self.force_dir), 1, THECOLORS["black"]), (0,15))
+        self.screen.blit(font.render("force_dir: " + str(self.action_space[action]), 1, THECOLORS["black"]), (0,15))
         self.screen.blit(font.render("n_dir: " + str(self.n_dir), 1, THECOLORS["black"]), (0,30))
         self.screen.blit(font.render("Velocity: " + str(velx), 1, THECOLORS["black"]), (0,45))
 
         state = self.process_frame(self.screen)
         frames = self.stack_states(state)
-        pygame.display.flip()
+        if self.renderSC:
+            pygame.display.flip()
 
         self.terminate_action()
         # Delay fixed time between frames
@@ -132,6 +138,18 @@ class CreateWorld(object):
         shape.friction = 0.5
         self.space.add(body,shape)
         self.objects.append(shape)
+
+    def createTrash(self):
+        mass = 1
+        intertia = pymunk.moment_for_circle(mass, 0, 5)
+        body = pymunk.Body(mass, intertia)
+        body.positin = self.trashpos
+        shape = pymunk.Circle(body, 5)
+        shape.elasticity = 0.95
+        shape.friction = 0.1
+        self.space.add(body,shape)
+        self.trash.append(shape)
+
 
     def applyForce(self,action):
         obj = self.objects[0]
@@ -164,23 +182,28 @@ class CreateWorld(object):
         x = round(x,4)
         y = round(y,4)
         if self.n_dir == 1:
-            if self.x_prev < x:
+            if self.x_prev + 5 < x:
                 reward = 0.5
+                self.x_prev = x
             elif self.x_prev == x:
                 reward = 0
             else:
                 reward = 0
         elif self.n_dir == -1:
-            if self.x_prev > x:
+            if self.x_prev - 5 > x:
                 reward = 0.5
+                self.x_prev = x
             elif self.x_prev == x:
                 reward = 0
             else:
                 reward = 0
         if x > self.right_wall[0] or x < self.left_wall[0]:
-            reward = 0
+            reward = -10
 
-        self.x_prev = x
+        if x > self.right_wall[0] - 100 and x < self.right_wall[0] - 101:
+            reward = 5 
+
+        
         return reward
 
 
