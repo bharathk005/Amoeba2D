@@ -22,11 +22,11 @@ def basic_control():
 		step += 1
 		#e.see_amoeba_world(0,50,world.displayX,world.displayY)
 		reward,state,done = world.run_frame(action)
-		print(state.shape)
+		#print(state.shape)
 		x,y = world.objects[0].body.position
 		action = int((world.n_dir +1)/2)
-		# if world.running == False:
-		# 	window_dat = world.reset()
+		if world.running == False:
+			window_dat = world.reset()
 		# 	#print(np.__config__.show())
 		# 	print('loop took {} seconds'.format(time.time()-last_time))	
 		# 	last_time = time.time()
@@ -36,8 +36,8 @@ def basic_control():
 		# temp.blit(pygame.surfarray.make_surface(window_dat),(0,0) )
 		# pygame.display.update()
 		# if step > 20:
-		plt.imshow(state[:,:,3])
-		plt.show()
+		# plt.imshow(state[:,:,1])
+		# plt.show()
 
 def discount_and_normalize_rewards(episode_rewards):
     discounted_episode_rewards = np.zeros_like(episode_rewards)
@@ -157,6 +157,7 @@ def trainNN():
 	total_rewards = 0
 	max_reward = 0
 	episode_states, episode_actions,episode_rewards = [],[],[]
+
 	with tf.Session() as sess:
 		sess.run(tf.global_variables_initializer())
 		
@@ -171,8 +172,8 @@ def trainNN():
 				#print('#########################################')
 				choice = np.argmax(actions)
 				#choice = np.random.randint(2)
-				#action = world.action_space[int(choice)]
-				reward,next_state,done = world.run_frame(choice)
+
+				reward,next_state,done = world.run_frame(choice)#int((world.n_dir+1)/2))
 				#print(actions)
 
 				action_ideal = np.zeros(actions.shape)
@@ -219,6 +220,7 @@ def trainNN():
 
 
 if __name__ == '__main__':
-	#basic_control()
+
+	# basic_control()
 	trainNN()
 	print('THE END')

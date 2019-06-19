@@ -34,7 +34,7 @@ class CreateWorld(object):
         self.trashpos = (np1.random.uniform(self.left_wall[0] + 50, self.right_wall[0] - 50),self.left_wall[1] + 10)
 
         self.stacked_frames  = []
-        self.stack_size = 4
+        self.stack_size = 3
 
         self.renderSC = True
         self.staticScene()
@@ -144,13 +144,18 @@ class CreateWorld(object):
         mass = 1
         intertia = pymunk.moment_for_circle(mass, 0, 5)
         body = pymunk.Body(mass, intertia)
+        self.trashpos = (np1.random.uniform(self.left_wall[0] + 50, self.right_wall[0] - 50),self.left_wall[1] + 10)
         body.position = self.trashpos
-        shape = pymunk.Circle(body, 5)
+        shape = pymunk.Circle(body, 10)
         shape.elasticity = 0.95
         shape.friction = 0.1
         self.space.add(body,shape)
         self.trash.append(shape)
 
+    def delTrashObj(self):
+        self.space.remove(self.trash[0])
+        self.trash.clear()
+        self.createTrash()
 
     def applyForce(self,action):
         obj = self.objects[0]
@@ -165,10 +170,9 @@ class CreateWorld(object):
 
     def terminate_action(self):
         x,y = self.objects[0].body.position
-        if(y < 100.0 ):
+        if y < self.left_wall[1] - 10 :
             self.running = False
-        if self.n_dir == -1 and x <= self.left_wall[0] + 50:
-            self.running = False
+
 
     def milestones(self):
         x,y = self.objects[0].body.position
@@ -181,6 +185,7 @@ class CreateWorld(object):
     def getReward(self):
         reward = 0
         x,y = self.objects[0].body.position
+        tx,ty = self.trash[0].body.position
         x = round(x,4)
         y = round(y,4)
         if self.n_dir == 1:
@@ -199,9 +204,14 @@ class CreateWorld(object):
                 reward = 0
             else:
                 reward = 0
-        if x > self.right_wall[0] or x < self.left_wall[0]:
-            reward = -10
         
+        if ty < self.left_wall[1] - 10:
+            reward = 5
+            self.delTrashObj()
+
+        if x > self.right_wall[0] or x < self.left_wall[0]:
+            reward += 0 #-10
+
         return reward
 
 
