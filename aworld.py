@@ -206,7 +206,7 @@ class CreateWorld(object):
                 reward = 0
         
         if ty < self.left_wall[1] - 10:
-            reward = 5
+            reward += 2
             self.delTrashObj()
 
         if x > self.right_wall[0] or x < self.left_wall[0]:

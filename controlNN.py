@@ -6,9 +6,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 import time
 import datetime
-TOTAL_EPISODES = 30
-MAX_STEPS = 1000
-LR = 0.01
+TOTAL_EPISODES = 11
+MAX_STEPS = 1500
+LR = 0.0075
 GAMMA = 0.95
 
 def basic_control():
@@ -71,7 +71,7 @@ class CreateNN():
 
 			with tf.name_scope(name + "-con1"):
 				self.con1 = tf.layers.conv2d(inputs = self.inputs,
-	                                         filters = 32,
+	                                         filters = 8,
 	                                         kernel_size = [20,2],
 	                                         strides = [10,1],
 	                                         padding = "VALID",
@@ -84,23 +84,23 @@ class CreateNN():
 				self.con1_out = tf.nn.elu(self.con1_batchnorm, name="con1_out")
 
 
-			with tf.name_scope(name + "-con2"):
-				self.con2 = tf.layers.conv2d(inputs = self.con1_out,
-	                                         filters = 64,
-	                                         kernel_size = [4,4],
-	                                         strides = [2,2],
-	                                         padding = "VALID",
-	                                          kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
-	                                         name = "con2")
-				self.con2_batchnorm = tf.layers.batch_normalization(self.con2,
-                                                   training = True,
-                                                   epsilon = 1e-5,
-                                                     name = 'batch_norm2')
-				self.con2_out = tf.nn.elu(self.con2_batchnorm, name="con2_out")
+			# with tf.name_scope(name + "-con2"):
+			# 	self.con2 = tf.layers.conv2d(inputs = self.con1_out,
+	  #                                        filters = 16,
+	  #                                        kernel_size = [4,4],
+	  #                                        strides = [2,2],
+	  #                                        padding = "VALID",
+	  #                                         kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+	  #                                        name = "con2")
+			# 	self.con2_batchnorm = tf.layers.batch_normalization(self.con2,
+   #                                                 training = True,
+   #                                                 epsilon = 1e-5,
+   #                                                   name = 'batch_norm2')
+			# 	self.con2_out = tf.nn.elu(self.con2_batchnorm, name="con2_out")
 
 			with tf.name_scope(name + "-con3"):
-				self.con3 = tf.layers.conv2d(inputs = self.con2_out,
-	                                         filters = 128,
+				self.con3 = tf.layers.conv2d(inputs = self.con1_out,
+	                                         filters = 8,
 	                                         kernel_size = [4,4],
 	                                         strides = [2,2],
 	                                         padding = "VALID",
@@ -114,7 +114,7 @@ class CreateNN():
 
 			with tf.name_scope(name + "-flat_n_dense"):
 				self.flater = tf.layers.flatten(self.con3_out)
-				self.fc = tf.layers.dense(inputs = self.flater, units = 512, activation = tf.nn.elu,
+				self.fc = tf.layers.dense(inputs = self.flater, units = 64, activation = tf.nn.elu,
                                        kernel_initializer=tf.contrib.layers.xavier_initializer(),
                                 name="fc1")
 				self.output = tf.layers.dense(inputs = self.fc, 
