@@ -6,9 +6,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 import time
 import datetime
-TOTAL_EPISODES = 11
+TOTAL_EPISODES = 15
 MAX_STEPS = 1500
-LR = 0.0075
+LR = 0.0050
 GAMMA = 0.95
 
 def basic_control():

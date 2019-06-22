@@ -26,8 +26,8 @@ class CreateWorld(object):
         self.running = True
         self.box_dir = 0
         self.n_dir =1
-        self.left_wall = (50.0,100.0)
-        self.right_wall = (550.0,100.0)
+        self.left_wall = (150.0,100.0)
+        self.right_wall = (350.0,100.0)
         self.start_pos = ((self.left_wall[0]+self.right_wall[0])/2 ,self.left_wall[1])
         self.x_prev = self.start_pos[0]
 
@@ -39,7 +39,7 @@ class CreateWorld(object):
         self.renderSC = True
         self.staticScene()
         self.createBox()
-        self.createTrash()
+        #self.createTrash()
         self.init_pygame()
 
     def init_stack(self,state):
@@ -205,9 +205,9 @@ class CreateWorld(object):
             else:
                 reward = 0
         
-        if ty < self.left_wall[1] - 10:
-            reward += 2
-            self.delTrashObj()
+        # if ty < self.left_wall[1] - 10:
+        #     reward += 2
+        #     self.delTrashObj()
 
         if x > self.right_wall[0] or x < self.left_wall[0]:
             reward += 0 #-10
