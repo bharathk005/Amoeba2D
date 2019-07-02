@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 import time
 import datetime
 TOTAL_EPISODES = 5
-MAX_STEPS = 500
+MAX_STEPS = 100
 GAMMA = 0.95
 
 def basic_control():
