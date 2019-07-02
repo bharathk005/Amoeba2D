@@ -6,8 +6,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import time
 import datetime
-TOTAL_EPISODES = 15
-MAX_STEPS = 1000
+TOTAL_EPISODES = 5
+MAX_STEPS = 500
 GAMMA = 0.95
 
 def basic_control():
@@ -191,7 +191,7 @@ def trainNN(LR = 0.01):
 					mean = np.divide(total,episode+1)
 					max_reward = np.amax(complete_rewards)
 
-					print("******************************")
+					print("******************************", LR)
 					print("Epi: ", episode)
 					print("Epi Reward: ", reward_for_episode)
 					print("Max Reward: ", max_reward)
@@ -212,7 +212,9 @@ def trainNN(LR = 0.01):
 					break
 
 				state = next_state
+	tf.reset_default_graph()
 	return mean,max_reward
+
 
 
 

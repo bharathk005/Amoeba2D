@@ -24,7 +24,10 @@ def evolve():
         for g in range(TOTAL_GENE):
             chromosome.append(round(np.random.uniform(geneLR_range[0],geneLR_range[1]),4))
         population.append(chromosome)
-    print(population)
+
+    for p in population:
+        mean_reward,max_reward = cnn.trainNN(p[0])
+        print(mean_reward)
 
 
 if __name__ == '__main__':
