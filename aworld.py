@@ -176,41 +176,43 @@ class CreateWorld(object):
 
     def milestones(self):
         x,y = self.objects[0].body.position
-        tx,ty = self.trash[0].body.position
-        if x >= tx:
-            self.n_dir = -1
-        elif x < tx:
-            self.n_dir = 1
+        # tx,ty = self.trash[0].body.position
+        # if x >= tx:
+        #     self.n_dir = -1
+        # elif x < tx:
+        #     self.n_dir = 1
 
     def getReward(self):
         reward = 0
         x,y = self.objects[0].body.position
-        tx,ty = self.trash[0].body.position
-        x = round(x,4)
-        y = round(y,4)
-        if self.n_dir == 1:
-            if self.x_prev + 1 < x:
-                reward = 0.5
-                self.x_prev = x
-            elif self.x_prev == x:
-                reward = 0
-            else:
-                reward = 0
-        elif self.n_dir == -1:
-            if self.x_prev - 1 > x:
-                reward = 0.5
-                self.x_prev = x
-            elif self.x_prev == x:
-                reward = 0
-            else:
-                reward = 0
+       # tx,ty = self.trash[0].body.position
+        # x = round(x,4)
+        # y = round(y,4)
+        # if self.n_dir == 1:
+        #     if self.x_prev + 1 < x:
+        #         reward = 0.5
+        #         self.x_prev = x
+        #     elif self.x_prev == x:
+        #         reward = 0
+        #     else:
+        #         reward = 0
+        # elif self.n_dir == -1:
+        #     if self.x_prev - 1 > x:
+        #         reward = 0.5
+        #         self.x_prev = x
+        #     elif self.x_prev == x:
+        #         reward = 0
+        #     else:
+        #         reward = 0
         
         # if ty < self.left_wall[1] - 10:
         #     reward += 2
         #     self.delTrashObj()
 
         if x > self.right_wall[0] or x < self.left_wall[0]:
-            reward += 0 #-10
+            reward += -5 #-10
+        else:
+            reward += 1
 
         return reward
 

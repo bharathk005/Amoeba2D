@@ -7,8 +7,7 @@ from matplotlib import pyplot as plt
 import time
 import datetime
 TOTAL_EPISODES = 15
-MAX_STEPS = 1500
-LR = 0.0050
+MAX_STEPS = 1000
 GAMMA = 0.95
 
 def basic_control():
@@ -146,7 +145,7 @@ class CreateNN():
 
 
 
-def trainNN():
+def trainNN(LR = 0.01):
 	world = w.CreateWorld()
 	state = world.reset()
 	#world.render(False)
@@ -213,7 +212,7 @@ def trainNN():
 					break
 
 				state = next_state
-
+	return mean,max_reward
 
 
 
