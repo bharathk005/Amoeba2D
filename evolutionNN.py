@@ -74,7 +74,7 @@ def evolve():
     crossover()
     mutation()
     for p in population:
-        mean_reward,max_reward = simulate_reward() #cnn.trainNN(p[0])
+        mean_reward,max_reward = cnn.trainNN(p[0])
         fitness.append(mean_reward)
 
 def populate():
@@ -88,7 +88,7 @@ def populate():
     print("initial population")
     print(population)
     for p in population:
-        mean_reward,max_reward = simulate_reward() #cnn.trainNN(p[0])
+        mean_reward,max_reward = cnn.trainNN(p[0])
         fitness.append(mean_reward)
     print("initial fitness")
     print(fitness)

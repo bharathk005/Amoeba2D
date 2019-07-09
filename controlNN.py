@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 import time
 import datetime
 TOTAL_EPISODES = 5
-MAX_STEPS = 100
+MAX_STEPS = 500
 GAMMA = 0.95
 
 def basic_control():
@@ -150,7 +150,7 @@ def trainNN(LR = 0.01):
 	state = world.reset()
 	#world.render(False)
 	network = CreateNN(state.shape,world.action_size,LR,"FirstNN")
-
+	mean_reward = 0
 	allRewards = []
 	complete_rewards = []
 	total_rewards = 0
@@ -188,13 +188,13 @@ def trainNN(LR = 0.01):
 					complete_rewards.append(reward_for_episode)
 
 					total = np.sum(complete_rewards)
-					mean = np.divide(total,episode+1)
+					mean_reward = np.divide(total,episode+1)
 					max_reward = np.amax(complete_rewards)
 
-					print("******************************", LR)
-					print("Epi: ", episode)
-					print("Epi Reward: ", reward_for_episode)
-					print("Max Reward: ", max_reward)
+					# print("******************************", LR)
+					# print("Epi: ", episode)
+					# print("Epi Reward: ", reward_for_episode)
+					# print("Max Reward: ", max_reward)
 					dis_ep_reward = discount_and_normalize_rewards(episode_rewards)
 					loss,_ = sess.run([network.loss,network.train_op],feed_dict={network.inputs: episode_states,
 																				network.actions: np.vstack(np.array(episode_actions)),
@@ -213,7 +213,10 @@ def trainNN(LR = 0.01):
 
 				state = next_state
 	tf.reset_default_graph()
-	return mean,max_reward
+	print("************* ", LR)
+	print("mean: ",mean_reward)
+	print("max:  ",max_reward)
+	return mean_reward,max_reward
 
 
 
