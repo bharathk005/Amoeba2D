@@ -11,8 +11,8 @@ import numpy as np1
 
 class CreateWorld(object):
     def __init__(self):
-        self.displayX = 600
-        self.displayY = 600
+        self.displayX = 900
+        self.displayY = 900
         self.space = pymunk.Space()
         self.space.gravity = (0.0,-986)
         self.physicsStepsPerFrame = 1
@@ -20,9 +20,12 @@ class CreateWorld(object):
 
         self.objects = []
         self.staticScene()
-        self.createCirc((65,100))
-        self.createCirc((105,100))
+        self.createCirc((55,100),10,True)
+        self.createCirc((125,100),20,True)
+        self.createCirc((200,100),10,True)
         self.creatJoint(self.objects[0].body, self.objects[1].body, (0,0), (0,0))
+        self.creatJoint(self.objects[1].body, self.objects[2].body, (0,0), (0,0))
+        #self.createSpring(self.objects[0].body, self.objects[1].body, (0,0), (0,0),50)
         # self.createSqr()
         #self.createPoly()
         self.init_pygame()
@@ -55,13 +58,13 @@ class CreateWorld(object):
 
     def staticScene(self):
         staticBody = self.space.static_body
-        ground = pymunk.Segment(staticBody,(50,100),(250,100),1.5)
+        ground = pymunk.Segment(staticBody,(50,100),(350,100),1.5)
         ground.friction = 0.8
         self.space.add(ground)
 
-        ramp1 = pymunk.Segment(staticBody,(250,100),(300,120),1.5)
+        ramp1 = pymunk.Segment(staticBody,(350,100),(550,180),1.5)
         ramp1.friction = 0.8
-        ramp2 = pymunk.Segment(staticBody,(300,120),(550,300),1.5)
+        ramp2 = pymunk.Segment(staticBody,(550,180),(700,300),1.5)
         ramp2.friction = 0.8
         self.space.add(ramp1)
         self.space.add(ramp2)
@@ -70,16 +73,23 @@ class CreateWorld(object):
         joint = pymunk.PinJoint(bodyA,bodyB,anchorA,anchorB)
         self.space.add(joint)
 
-    def createCirc(self,position):
+
+    def createSpring(self,bodyA,bodyB,anchorA,anchorB,restLength):
+        joint = pymunk.DampedSpring(bodyA,bodyB,anchorA,anchorB,restLength,
+            stiffness = 0.5,damping = 0.5)
+        self.space.add(joint)
+
+    def createCirc(self,position,radius,motor = False):
         mass =5
-        inertia = pymunk.moment_for_circle(mass,0, 5)
+        inertia = pymunk.moment_for_circle(mass,0, radius)
         body = pymunk.Body(mass,inertia)
         body.position = position
-        shape = pymunk.Circle(body,10)
+        shape = pymunk.Circle(body,radius)
         shape.elasticity = 0.95
         shape.friction = 0.5
         self.space.add(body,shape)
-        self.space.add(pymunk.SimpleMotor(body,self.space.static_body,-4))
+        if motor:
+            self.space.add(pymunk.SimpleMotor(body,self.space.static_body,-8))
         self.objects.append(shape)
 
     def createSqr(self,position):
