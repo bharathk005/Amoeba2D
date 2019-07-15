@@ -19,16 +19,27 @@ class CreateWorld(object):
         self.dt = 1.0/60.0
 
         self.objects = []
-        self.staticBody = self.staticScene()
-        self.createObj()
+        self.staticScene()
+        self.createCirc((65,100))
+        self.createCirc((105,100))
+        self.creatJoint(self.objects[0].body, self.objects[1].body, (0,0), (0,0))
+        # self.createSqr()
+        #self.createPoly()
         self.init_pygame()
 
     def run_frame(self):
         for x in range(self.physicsStepsPerFrame):
             self.space.step(self.dt)
+
         #self.applyForce()
         self.clear_screen()
         self.draw_objects()
+
+
+        font = pygame.font.SysFont("Arial", 16)
+        self.screen.blit(font.render("angularVelocity: " + str(self.objects[0].body.angular_velocity), 1, THECOLORS["black"]), (0,15))
+ 
+
 
         pygame.display.flip()
 
@@ -48,21 +59,53 @@ class CreateWorld(object):
         ground.friction = 0.8
         self.space.add(ground)
 
-        ramp = pymunk.Segment(staticBody,(250,100),(550,300),1.5)
-        ramp.friction = 0.8
-        self.space.add(ramp)
-        return staticBody
+        ramp1 = pymunk.Segment(staticBody,(250,100),(300,120),1.5)
+        ramp1.friction = 0.8
+        ramp2 = pymunk.Segment(staticBody,(300,120),(550,300),1.5)
+        ramp2.friction = 0.8
+        self.space.add(ramp1)
+        self.space.add(ramp2)
+    
+    def creatJoint(self,bodyA,bodyB,anchorA,anchorB):
+        joint = pymunk.PinJoint(bodyA,bodyB,anchorA,anchorB)
+        self.space.add(joint)
 
-    def createObj(self):
+    def createCirc(self,position):
         mass =5
         inertia = pymunk.moment_for_circle(mass,0, 5)
         body = pymunk.Body(mass,inertia)
-        body.position = (75,105)
+        body.position = position
         shape = pymunk.Circle(body,10)
         shape.elasticity = 0.95
         shape.friction = 0.5
         self.space.add(body,shape)
-        self.space.add(pymunk.SimpleMotor(body,self.staticBody,-4))
+        self.space.add(pymunk.SimpleMotor(body,self.space.static_body,-4))
+        self.objects.append(shape)
+
+    def createSqr(self,position):
+        mass = 5
+        inertia = pymunk.moment_for_box(mass,(15,15))
+        body = pymunk.Body(mass,inertia)
+        body.position = position
+        shape = pymunk.Poly.create_box(body,(15,15))
+        shape.elasticity = 0.95
+        shape.friction = 0.5
+        self.space.add(body,shape)
+        self.space.add(pymunk.SimpleMotor(body,self.space.static_body,-4))
+        self.objects.append(shape)
+
+
+    def createPoly(self,position):
+        mass = 5
+        vertices = [(20,0),(0,20),(0,-20)]
+        inertia = pymunk.moment_for_poly(mass,vertices)
+        body = pymunk.Body(mass,inertia)
+        body.position = position
+        shape = pymunk.Poly(body,vertices)
+        shape.elasticity = 0.95
+        shape.friction = 0.5
+        self.space.add(body,shape)
+        self.space.add(pymunk.SimpleMotor(body,self.space.static_body,-4))
         self.objects.append(shape)
 
     def clear_screen(self):
