@@ -1,5 +1,5 @@
 import numpy as np
-import pyscreenshot as sc
+from PIL import ImageGrab
 import cv2
 import time
 

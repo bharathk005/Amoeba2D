@@ -4,8 +4,8 @@ import tensorflow as tf
 import numpy as np
 
 from matplotlib import pyplot as plt
-import time
 import datetime
+import time
 TOTAL_EPISODES = 5
 MAX_STEPS = 500
 GAMMA = 0.95
@@ -135,7 +135,7 @@ class CreateNN():
 			with tf.name_scope(name + "-train"):
 				self.train_op = tf.train.AdamOptimizer(self.LR).minimize(self.loss)
 
-			self.writer = tf.summary.FileWriter("tensorboard/"+datetime.datetime.now().strftime("%d_%I%M%p "),tf.get_default_graph())
+			self.writer = tf.summary.FileWriter("tensorboard\\"+datetime.datetime.now().strftime("%d_%I%M%p"),tf.get_default_graph())
 			for var in tf.trainable_variables():
 				tf.summary.histogram(var.name, var)
 			tf.summary.scalar("Loss", self.loss)
