@@ -22,8 +22,6 @@ def see_amoeba_world(offsetX,offsetY,sizeX,sizeY):
     # visionstack = np.dstack([visionbw]*3)
     detections, _ = detector.detectObjectsFromImage(input_type = 'array',output_type='array',input_image = vision)
     print('fps: {}'.format(1/(time.time()-last_time)))
-    # # plt.imshow(np.array(detections))
-    # # plt.show()
     cv2.imshow('image',detections)
     cv2.waitKey(1)
 
